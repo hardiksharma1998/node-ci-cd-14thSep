@@ -1,34 +1,29 @@
-pipeline{
-    agent { label 'dev-server' }
+pipeline {
+    agent any
     
-    stages{
-        stage("Code Clone"){
-            steps{
-                echo "Code Clone Stage"
-                git url: "https://github.com/LondheShubham153/node-todo-cicd.git", branch: "master"
-            }
-        }
-        stage("Code Build & Test"){
-            steps{
-                echo "Code Build Stage"
-                sh "docker build -t node-app ."
-            }
-        }
-        stage("Push To DockerHub"){
-            steps{
-                withCredentials([usernamePassword(
-                    credentialsId:"dockerHubCreds",
-                    usernameVariable:"dockerHubUser", 
-                    passwordVariable:"dockerHubPass")]){
-                sh 'echo $dockerHubPass | docker login -u $dockerHubUser --password-stdin'
-                sh "docker image tag node-app:latest ${env.dockerHubUser}/node-app:latest"
-                sh "docker push ${env.dockerHubUser}/node-app:latest"
+    stages {
+        stage('Build Image') {
+            steps {
+                script {
+                    sh 'docker build -t my-node-app:latest .'
                 }
             }
         }
-        stage("Deploy"){
-            steps{
-                sh "docker compose down && docker compose up -d --build"
+        stage('Push Image') {
+            steps {
+                script {
+                    sh 'docker tag my-node-app:latest your-docker-registry/my-node-app:latest'
+                    sh 'docker push your-docker-registry/my-node-app:latest'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sshagent(credentials: ['your-ssh-key-id']) {
+                    sh 'ssh your-user@your-server-ip "docker stop my-node-app || true"'
+                    sh 'ssh your-user@your-server-ip "docker rm my-node-app || true"'
+                    sh 'ssh your-user@your-server-ip "docker run -d --name my-node-app -p 3000:3000 your-docker-registry/my-node-app:latest"'
+                }
             }
         }
     }
