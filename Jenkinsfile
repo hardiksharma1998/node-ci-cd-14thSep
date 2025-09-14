@@ -12,8 +12,8 @@ pipeline {
         stage('Push Image') {
             steps {
                 script {
-                    sh 'docker tag my-node-app:latest your-docker-registry/my-node-app:latest'
-                    sh 'docker push your-docker-registry/my-node-app:latest'
+                    sh 'docker tag my-node-app:latest hardikdockeraws/my-node-app:latest'
+                    sh 'docker push hardikdockeraws/my-node-app:latest'
                 }
             }
         }
@@ -22,7 +22,7 @@ pipeline {
                 sshagent(credentials: ['your-ssh-key-id']) {
                     sh 'ssh your-user@your-server-ip "docker stop my-node-app || true"'
                     sh 'ssh your-user@your-server-ip "docker rm my-node-app || true"'
-                    sh 'ssh your-user@your-server-ip "docker run -d --name my-node-app -p 3000:3000 your-docker-registry/my-node-app:latest"'
+                    sh 'ssh your-user@your-server-ip "docker run -d --name my-node-app -p 3000:3000 hardikdockeraws/my-node-app:latest"'
                 }
             }
         }
