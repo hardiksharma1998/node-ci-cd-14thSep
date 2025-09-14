@@ -4,26 +4,38 @@ pipeline {
     stages {
         stage('Build Image') {
             steps {
-                script {
-                    sh 'docker build -t my-node-app:latest .'
+                sh 'docker build -t hardiksharma1998/nodeproject:latest .'
+            }
+        }
+        
+        stage('Login to Docker Hub') {
+            steps {
+                // Ensure your Docker Hub username and password are stored as
+                // Secret Text credentials in Jenkins.
+                // The Credentials ID should be 'dockerhub-credentials'.
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'd2545067-fea9-4300-b56c-f01049d15fe3',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_PASSWORD'
+                    )
+                ]) {
+                    sh "echo \$DOCKERHUB_PASSWORD | docker login -u \$DOCKERHUB_USERNAME --password-stdin"
                 }
             }
         }
+        
         stage('Push Image') {
             steps {
-                script {
-                    sh 'docker tag my-node-app:latest hardikdockeraws/my-node-app:latest'
-                    sh 'docker push hardikdockeraws/my-node-app:latest'
-                }
+                sh 'docker push hardiksharma1998/nodeproject:latest'
             }
         }
+        
         stage('Deploy') {
             steps {
-                sshagent(credentials: ['your-ssh-key-id']) {
-                    sh 'ssh your-user@your-server-ip "docker stop my-node-app || true"'
-                    sh 'ssh your-user@your-server-ip "docker rm my-node-app || true"'
-                    sh 'ssh your-user@your-server-ip "docker run -d --name my-node-app -p 3000:3000 hardikdockeraws/my-node-app:latest"'
-                }
+                // This stage is still in your pipeline, but we will update it
+                // to deploy to AWS ECS Fargate once the push is successful.
+                sh 'echo "Skipping deployment for now. We will deploy to AWS ECS Fargate next."'
             }
         }
     }
