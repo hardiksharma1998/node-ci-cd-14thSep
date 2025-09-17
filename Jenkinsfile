@@ -1,18 +1,22 @@
 pipeline {
     agent any
     
+    // Environment variables for Docker configuration.
+    environment {
+        DOCKER_IMAGE_NAME = 'hardiksharma1998/nodeproject'
+    }
+    
     stages {
         stage('Build Image') {
             steps {
-                sh 'docker build -t hardikdockeraws/nodeproject:latest .'
+                // Build the Docker image with the correct tag format.
+                sh "docker build -t ${env.DOCKER_IMAGE_NAME}:latest ."
             }
         }
         
         stage('Login to Docker Hub') {
             steps {
-                // Ensure your Docker Hub username and password are stored as
-                // Secret Text credentials in Jenkins.
-                // The Credentials ID should be 'dockerhub-credentials'.
+                // Authenticate with Docker Hub using credentials stored in Jenkins.
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'd2545067-fea9-4300-b56c-f01049d15fe3',
@@ -27,11 +31,12 @@ pipeline {
         
         stage('Push Image') {
             steps {
-                sh 'docker push hardikdockeraws/nodeproject:latest'
+                // Push the image to Docker Hub.
+                sh "docker push ${env.DOCKER_IMAGE_NAME}:latest"
             }
         }
         
-        stage('Deploy Locally') {
+       stage('Deploy Locally') {
             steps {
                 // Stop any existing container to free up the port.
                 echo 'Stopping existing container if it is running...'
@@ -44,6 +49,7 @@ pipeline {
                 // Run the new container from the pushed image.
                 echo 'Deploying new container...'
                 sh "docker run -d --name nodeproject-app -p 3000:3000 ${env.DOCKER_IMAGE_NAME}:latest"
+            }
         }
     }
 }
