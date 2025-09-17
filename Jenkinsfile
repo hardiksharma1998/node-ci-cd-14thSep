@@ -48,7 +48,7 @@ pipeline {
                 
                 // Run the new container from the pushed image.
                 echo 'Deploying new container...'
-                sh "docker run -d --name nodeproject-app -p 3000:3000 ${env.DOCKER_IMAGE_NAME}:latest"
+                sh "docker run -d --name nodeproject-app -p 3000:8000 ${env.DOCKER_IMAGE_NAME}:latest"
             }
         }
     }
