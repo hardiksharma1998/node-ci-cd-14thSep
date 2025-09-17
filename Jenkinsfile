@@ -27,7 +27,7 @@ pipeline {
         
         stage('Push Image') {
             steps {
-                sh 'docker push hardiksharma1998/nodeproject:latest'
+                sh 'docker push hardikdockeraws/nodeproject:latest'
             }
         }
         
