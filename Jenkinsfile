@@ -31,12 +31,19 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
+        stage('Deploy Locally') {
             steps {
-                // This stage is still in your pipeline, but we will update it
-                // to deploy to AWS ECS Fargate once the push is successful.
-                sh 'echo "Skipping deployment for now. We will deploy to AWS ECS Fargate next."'
-            }
+                // Stop any existing container to free up the port.
+                echo 'Stopping existing container if it is running...'
+                sh "docker stop nodeproject-app || true"
+                
+                // Remove the old container.
+                echo 'Removing old container...'
+                sh "docker rm nodeproject-app || true"
+                
+                // Run the new container from the pushed image.
+                echo 'Deploying new container...'
+                sh "docker run -d --name nodeproject-app -p 3000:3000 ${env.DOCKER_IMAGE_NAME}:latest"
         }
     }
 }
