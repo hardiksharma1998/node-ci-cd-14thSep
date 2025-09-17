@@ -3,7 +3,7 @@ pipeline {
     
     // Environment variables for Docker configuration.
     environment {
-        DOCKER_IMAGE_NAME = 'hardiksharma1998/nodeproject'
+        DOCKER_IMAGE_NAME = 'hardikdockeraws/nodeproject'
     }
     
     stages {
